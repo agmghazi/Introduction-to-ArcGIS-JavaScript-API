@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Sultan_gardens</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.12/esri/css/main.css">
+    <script src="https://js.arcgis.com/4.12/"></script>
+    <style>
+        #viewDiv,
+        body,
+        html {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        let map1;
+        let view;
+        let Trailheads;
+
+        require(["esri/Map",
+            "esri/views/MapView",
+            "esri/widgets/BasemapToggle",
+            "esri/widgets/BasemapGallery",
+            "esri/layers/FeatureLayer",
+            "esri/widgets/ScaleBar",
+            "esri/widgets/Legend",
+            "esri/widgets/Search"],
+            function (Map,
+                MapView,
+                BasemapToggle,
+                BasemapGallery,
+                FeatureLayer,
+                ScaleBar,
+                Legend,
+                Search) {
+
+                map1 = new Map({ basemap: "satellite" });
+                view = new MapView({
+                    container: "viewDiv", map: map1, center: [34.38253253539017, 27.94433058493145], zoom: 16, popup: {
+                        dockEnabled: true,
+                        dockOptions: {
+                            breakpoint: false,
+                            buttonEnabled: true,
+                            position: "bottom-center",
+                        },
+                    },
+                });
+
+
+                let trailsSymbol = {
+                    type: "simple",
+                    symbol: {
+                        type: "picture-marker",
+                        url: "http://static.arcgis.com/images/Symbols/NPS/npsPictograph_0231b.png",
+                        width: "18px",
+                        height: "18px"
+                    }
+                }
+                let trailsLablel = {
+                    symbol: {
+                        type: "text",
+                        color: "white",
+                        font: {
+                            size: "13px",
+                            family: "Noto Sans",
+                            weight: "bold"
+                        }
+                    },
+                    labelPlacement: "above-center",
+                    labelExpressionInfo: {
+                        expression: "$feature.FolderPath"
+                    }
+                };
+                let popupTrails = {
+                    "title": "{TRL_NAME}",
+                    "content": "<b>Name</b> {FolderPath} </br> <b>ID</b> {SymbolID}"
+                }
+
+                Trailheads = new FeatureLayer({
+                    url: "https://services9.arcgis.com/vpYrvEKDJvmCwoQX/ArcGIS/rest/services/Sultan_gardens/FeatureServer/0",
+                    renderer: trailsSymbol,
+                    labelingInfo: [trailsLablel],
+                    outField: ["FolderPath", "FolderPath", "SymbolID"],
+                    popupTemplate: popupTrails
+
+                });
+                map1.add(Trailheads, 1);
+
+                document.querySelector("#PlaygroundID").addEventListener("click", function () {
+                    console.log("PlaygroundID");
+                    map1.removeAll();
+                    CreateLayer("Playground")
+                })
+                document.querySelector("#resturantID").addEventListener("click", function () {
+                    console.log("resturantID");
+                    map1.removeAll();
+                    CreateLayer("resturant")
+                })
+                document.querySelector("#Swimming_poolID").addEventListener("click", function () {
+                    console.log("Swimming_poolID");
+                    map1.removeAll();
+                    CreateLayer("Swimming pool")
+                })
+
+                view.ui.add([
+                    {
+                        component: "PlaygroundID",
+                        position: "top-right",
+                        index: 5,
+                    },
+                    {
+                        component: "resturantID",
+                        position: "top-right",
+                        index: 6,
+                    },
+                    {
+                        component: "Swimming_poolID",
+                        position: "top-right",
+                        index: 7,
+                    },
+                ]);
+                function CreateLayer(attriNme) {
+                    Trailheads = new FeatureLayer({
+                        url: "https://services9.arcgis.com/vpYrvEKDJvmCwoQX/ArcGIS/rest/services/Sultan_gardens/FeatureServer/0",
+                        definitionExpression: `FolderPath = '${attriNme}'`,
+                        renderer: trailsSymbol,
+                        labelingInfo: [trailsLablel],
+                        outField: ["FolderPath", "FolderPath", "SymbolID"],
+                        popupTemplate: popupTrails
+
+                    });
+                    map1.add(Trailheads, 1);
+                }
+            });
+    </script>
+    <div id="viewDiv">
+    </div>
+    <div id="PlaygroundID" class="esri-widget esri-widget--button esri-interactive">
+        <span class="esri-icon-configure-popup"></span>
+    </div>
+    <div id="resturantID" class="esri-widget esri-widget--button esri-interactive">
+        <span class="esri-icon-announcement"></span>
+    </div>
+    <div id="Swimming_poolID" class="esri-widget esri-widget--button esri-interactive">
+        <span class="esri-icon-home"></span>
+    </div>
+</body>
+
+</html>
